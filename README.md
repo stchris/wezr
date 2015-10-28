@@ -18,5 +18,18 @@ lat: 12.345
 long: 54.321
 ```
   
-* `./wezr`
+* Run `wezr`
 
+## Creative usage
+
+Add a cronjob (`crontab -e`) 
+
+```bash
+@hourly $GOHOME/bin/wezr > $HOME/.wezr.txt
+```
+
+and then use that info to greet you every time you open a new terminal, by putting this into your `.bash{rc,_profile}`:
+
+```
+echo "This is what it's like outside: `cat $HOME/.wezr.txt`"
+```
