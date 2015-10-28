@@ -3,9 +3,8 @@ Shows weather info in the console. Weather data is provided by [forecast.io](htt
 
 ## Installation
 
-* Clone this repository
-* `go get`
-* `go build`
+* `go get github.com/stchris/wezr`
+
 
 ## Usage
 
