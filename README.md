@@ -1,0 +1,2 @@
+# wezr
+CLI weather info
