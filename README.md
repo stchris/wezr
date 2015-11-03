@@ -20,6 +20,12 @@ long: 54.321
   
 * Run `wezr`
 
+## Sample output
+
+```
+Partly Cloudy 26.9 (feels like 29.2) precipitation chance 0.0
+```
+
 ## Creative usage
 
 Add a cronjob (`crontab -e`) 
