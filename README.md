@@ -22,8 +22,18 @@ long: 54.321
 
 ## Sample output
 
-```
+```bash
+$ wezr
 Partly Cloudy 26.9 (feels like 29.2) precipitation chance 0.0
+
+$ wezr --help
+usage: wezr [--config CONFIG] [--not-metric] [--version] 
+
+options:
+  --config CONFIG        location of the configuration file - default: ~/.wezr.yml
+  --not-metric           don't use metric units
+  --version, -v          show the current version
+
 ```
 
 ## Creative usage
