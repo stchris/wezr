@@ -1,6 +1,7 @@
 package main
 
 import "gopkg.in/yaml.v2"
+import "github.com/alexflint/go-arg"
 
 import "encoding/json"
 import "fmt"
@@ -75,6 +76,12 @@ type Flags struct {
 	Units              string   `json:"units"`
 }
 
+type Config struct {
+	ApiKey string `yaml:"api_key"`
+	Lat    string `yaml:"lat"`
+	Long   string `yaml:"long"`
+}
+
 func get_weather(api_key, lat, long string) *Weather {
 	coords := lat + "," + long
 	url := BASE_URL + api_key + "/" + coords + OPTIONS
@@ -97,12 +104,6 @@ func get_weather(api_key, lat, long string) *Weather {
 		}
 	}
 	return weather
-}
-
-type Config struct {
-	ApiKey string `yaml:"api_key"`
-	Lat    string `yaml:"lat"`
-	Long   string `yaml:"long"`
 }
 
 func main() {
