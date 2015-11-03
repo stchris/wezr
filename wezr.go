@@ -12,8 +12,9 @@ import "os"
 import "path/filepath"
 import "strconv"
 
+const VERSION = "0.1.0"
 const BASE_URL = "https://api.forecast.io/forecast/"
-const OPTIONS = "?units=si&exclude=minutely,hourly,daily"
+const OPTIONS = "?exclude=minutely,hourly,daily"
 
 type Weather struct {
 	Latitude  float64    `json:"latitude"`
@@ -82,9 +83,20 @@ type Config struct {
 	Long   string `yaml:"long"`
 }
 
-func get_weather(api_key, lat, long string) *Weather {
+type Args struct {
+	Version bool
+}
+
+func get_weather(api_key, lat, long string, not_metric bool) *Weather {
 	coords := lat + "," + long
-	url := BASE_URL + api_key + "/" + coords + OPTIONS
+	var units string
+	if not_metric {
+		units = "&units=us"
+	} else {
+		units = "&units=si"
+	}
+	url := BASE_URL + api_key + "/" + coords + OPTIONS + units
+	log.Printf(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
@@ -107,8 +119,19 @@ func get_weather(api_key, lat, long string) *Weather {
 }
 
 func main() {
+	var args struct {
+		CfgFile   string `arg:"--config,help:location of the configuration file - default: ~/.wezr.yml"`
+		NotMetric bool   `arg:"--not-metric,help:don't use metric units"`
+		Version   bool   `arg:"-v,help:show the current version"`
+	}
 	filename, _ := filepath.Abs(os.Getenv("HOME") + "/.wezr.yml")
-	yamlFile, err := ioutil.ReadFile(filename)
+	args.CfgFile = filename
+	arg.MustParse(&args)
+	if args.Version {
+		fmt.Printf("wezr version %v", VERSION)
+		os.Exit(0)
+	}
+	yamlFile, err := ioutil.ReadFile(args.CfgFile)
 	if err != nil {
 		log.Fatal("Error reading configuration file")
 	}
@@ -117,6 +140,6 @@ func main() {
 	if err != nil {
 		log.Fatal("Error parsing configuration file")
 	}
-	weather := get_weather(config.ApiKey, config.Lat, config.Long)
+	weather := get_weather(config.ApiKey, config.Lat, config.Long, args.NotMetric)
 	fmt.Println(weather.Currently)
 }
