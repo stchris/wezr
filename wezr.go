@@ -96,7 +96,6 @@ func get_weather(api_key, lat, long string, not_metric bool) *Weather {
 		units = "&units=si"
 	}
 	url := BASE_URL + api_key + "/" + coords + OPTIONS + units
-	log.Printf(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
