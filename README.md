@@ -24,16 +24,18 @@ long: 54.321
 
 ```bash
 $ wezr
-Partly Cloudy 26.9 (feels like 29.2) precipitation chance 0.0
+Mostly Cloudy 8.3°C (feels like 6.8°C) precipitation chance 0%
+
+$ wezr --units us
+Mostly Cloudy 47.0°F (feels like 44.2°F) precipitation chance 0%
 
 $ wezr --help
 usage: wezr [--config CONFIG] [--not-metric] [--version] 
 
 options:
   --config CONFIG        location of the configuration file - default: ~/.wezr.yml
-  --not-metric           don't use metric units
+  --units UNITS          display units: 'us' or 'si' (default)
   --version, -v          show the current version
-
 ```
 
 ## Creative usage

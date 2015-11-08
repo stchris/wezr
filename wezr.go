@@ -15,6 +15,7 @@ import "strings"
 const VERSION = "0.2.0"
 const BASE_URL = "https://api.forecast.io/forecast/"
 const OPTIONS = "?exclude=minutely,hourly,daily"
+const DEFAULT_TEMPLATE = "$summary $temp (feels like $apparentTemp) precipitation chance $precipitationChance"
 
 type Weather struct {
 	Latitude  float64    `json:"latitude"`
@@ -79,18 +80,24 @@ type Config struct {
 	Long   string `yaml:"long"`
 }
 
-type Args struct {
-	Version bool
-}
-
 // Renders the template string and replaces placeholders with values and units
-func formatWeather(w *Weather, template string) string {
+func formatWeather(w *Weather, template, units string) string {
 	crt := w.Currently
 	// $temp
-	temp := fmt.Sprintf("%.1f°C", crt.Temperature)
+	var temp string
+	if units == "si" {
+		temp = fmt.Sprintf("%.1f°C", crt.Temperature)
+	} else {
+		temp = fmt.Sprintf("%.1f°F", crt.Temperature)
+	}
 	result := strings.Replace(template, "$temp", temp, -1)
 	// $apparentTemp
-	apparentTemp := fmt.Sprintf("%.1f°C", crt.ApparentTemperature)
+	var apparentTemp string
+	if units == "si" {
+		apparentTemp = fmt.Sprintf("%.1f°C", crt.ApparentTemperature)
+	} else {
+		apparentTemp = fmt.Sprintf("%.1f°F", crt.ApparentTemperature)
+	}
 	result = strings.Replace(result, "$apparentTemp", apparentTemp, -1)
 	// $precipitationChance
 	precipitationChance := fmt.Sprintf("%d%%", int(crt.PrecipProbability*100))
@@ -100,15 +107,9 @@ func formatWeather(w *Weather, template string) string {
 	return result
 }
 
-func get_weather(api_key, lat, long string, not_metric bool) *Weather {
+func get_weather(api_key, lat, long string, units string) *Weather {
 	coords := lat + "," + long
-	var units string
-	if not_metric {
-		units = "&units=us"
-	} else {
-		units = "&units=si"
-	}
-	url := BASE_URL + api_key + "/" + coords + OPTIONS + units
+	url := BASE_URL + api_key + "/" + coords + OPTIONS + "&units=" + units
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
@@ -132,12 +133,13 @@ func get_weather(api_key, lat, long string, not_metric bool) *Weather {
 
 func main() {
 	var args struct {
-		CfgFile   string `arg:"--config,help:location of the configuration file - default: ~/.wezr.yml"`
-		NotMetric bool   `arg:"--not-metric,help:don't use metric units"`
-		Version   bool   `arg:"-v,help:show the current version"`
+		CfgFile string `arg:"--config,help:location of the configuration file - default: ~/.wezr.yml"`
+		Units   string `arg:"help:display units: 'us' or 'si' (default)"`
+		Version bool   `arg:"-v,help:show the current version"`
 	}
 	filename, _ := filepath.Abs(os.Getenv("HOME") + "/.wezr.yml")
 	args.CfgFile = filename
+	args.Units = "si"
 	arg.MustParse(&args)
 	if args.Version {
 		fmt.Printf("wezr version %v", VERSION)
@@ -152,6 +154,13 @@ func main() {
 	if err != nil {
 		log.Fatal("Error parsing configuration file")
 	}
-	weather := get_weather(config.ApiKey, config.Lat, config.Long, args.NotMetric)
-	fmt.Println(formatWeather(weather, "$summary $temp (feels like $apparentTemp) precipitation chance $precipitationChance"))
+	units := "si"
+	if args.Units != "" {
+		units = args.Units
+	}
+	if units != "us" && units != "si" {
+		log.Fatal("Unknown unit ", units)
+	}
+	weather := get_weather(config.ApiKey, config.Lat, config.Long, units)
+	fmt.Println(formatWeather(weather, DEFAULT_TEMPLATE, units))
 }
