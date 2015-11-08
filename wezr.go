@@ -10,9 +10,9 @@ import "log"
 import "net/http"
 import "os"
 import "path/filepath"
-import "strconv"
+import "strings"
 
-const VERSION = "0.1.0"
+const VERSION = "0.2.0"
 const BASE_URL = "https://api.forecast.io/forecast/"
 const OPTIONS = "?exclude=minutely,hourly,daily"
 
@@ -83,9 +83,21 @@ type Args struct {
 	Version bool
 }
 
-func formatWeather(w *Weather) string {
-	dp := w.Currently
-	return dp.Summary + " " + strconv.FormatFloat(dp.Temperature, 'f', 1, 32) + " (feels like " + strconv.FormatFloat(dp.ApparentTemperature, 'f', 1, 32) + ") precipitation chance " + strconv.FormatFloat(dp.PrecipProbability, 'f', 1, 32)
+// Renders the template string and replaces placeholders with values and units
+func formatWeather(w *Weather, template string) string {
+	crt := w.Currently
+	// $temp
+	temp := fmt.Sprintf("%.1f°C", crt.Temperature)
+	result := strings.Replace(template, "$temp", temp, -1)
+	// $apparentTemp
+	apparentTemp := fmt.Sprintf("%.1f°C", crt.ApparentTemperature)
+	result = strings.Replace(result, "$apparentTemp", apparentTemp, -1)
+	// $precipitationChance
+	precipitationChance := fmt.Sprintf("%d%%", int(crt.PrecipProbability*100))
+	result = strings.Replace(result, "$precipitationChance", precipitationChance, -1)
+	// $summary
+	result = strings.Replace(result, "$summary", crt.Summary, -1)
+	return result
 }
 
 func get_weather(api_key, lat, long string, not_metric bool) *Weather {
@@ -141,5 +153,5 @@ func main() {
 		log.Fatal("Error parsing configuration file")
 	}
 	weather := get_weather(config.ApiKey, config.Lat, config.Long, args.NotMetric)
-	fmt.Println(formatWeather(weather))
+	fmt.Println(formatWeather(weather, "$summary $temp (feels like $apparentTemp) precipitation chance $precipitationChance"))
 }
