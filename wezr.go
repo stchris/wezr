@@ -48,10 +48,6 @@ type DataPoint struct {
 	Ozone               float64 `json:"ozone"`
 }
 
-func (dp DataPoint) String() string {
-	return dp.Summary + " " + strconv.FormatFloat(dp.Temperature, 'f', 1, 32) + " (feels like " + strconv.FormatFloat(dp.ApparentTemperature, 'f', 1, 32) + ") precipitation chance " + strconv.FormatFloat(dp.PrecipProbability, 'f', 1, 32)
-}
-
 type DataBlock struct {
 	Summary string      `json:"summary"`
 	Icon    string      `json:"icon"`
@@ -85,6 +81,11 @@ type Config struct {
 
 type Args struct {
 	Version bool
+}
+
+func formatWeather(w *Weather) string {
+	dp := w.Currently
+	return dp.Summary + " " + strconv.FormatFloat(dp.Temperature, 'f', 1, 32) + " (feels like " + strconv.FormatFloat(dp.ApparentTemperature, 'f', 1, 32) + ") precipitation chance " + strconv.FormatFloat(dp.PrecipProbability, 'f', 1, 32)
 }
 
 func get_weather(api_key, lat, long string, not_metric bool) *Weather {
@@ -140,5 +141,5 @@ func main() {
 		log.Fatal("Error parsing configuration file")
 	}
 	weather := get_weather(config.ApiKey, config.Lat, config.Long, args.NotMetric)
-	fmt.Println(weather.Currently)
+	fmt.Println(formatWeather(weather))
 }
