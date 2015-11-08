@@ -30,7 +30,7 @@ $ wezr --units us
 Mostly Cloudy 47.0°F (feels like 44.2°F) precipitation chance 0%
 
 $ wezr --help
-usage: wezr [--config CONFIG] [--not-metric] [--version] 
+usage: wezr [--config CONFIG] [--units UNITS] [--version] 
 
 options:
   --config CONFIG        location of the configuration file - default: ~/.wezr.yml
